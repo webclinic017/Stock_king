@@ -1,0 +1,15 @@
+Flask==1.1.2
+pytest==4.3.1
+flasgger==0.9.1
+peewee==3.14.3
+flask-cors
+datatest
+gunicorn
+psycopg2-binary==2.8.6
+pandas
+numpy
+futures3
+pandas_datareader
+PyEmail
+openpyxl
+# Ta-Lib

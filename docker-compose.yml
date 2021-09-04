@@ -1,0 +1,18 @@
+version: "2"
+services:
+    sto_server:
+        container_name: sto_server
+        build: 
+          dockerfile: Dockerfile
+          context: ./
+        hostname: sto_server
+        image: "sto_server:v1"
+        restart: always
+        ports:
+            - 4450:80
+            - 4451:9897
+        volumes:
+            - "/root/Julie/sto-server/server:/root/server"
+        
+        command: ["/root/bootstrap.sh"]
+

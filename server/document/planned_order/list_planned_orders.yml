@@ -1,0 +1,26 @@
+In this API we get one planned order
+---
+tags:
+  - Planned Order
+consumes:
+  - application/json
+produces:
+  - application/json
+responses:
+  200:
+    description: empty content means delete room is successful 
+    examples:
+      body: {
+        "display_name": "Erin Chen/WYHQ/Wiwynn",
+        "visible": true,
+        "role": "admin",
+        "extension": "+8301-7482",
+        "english_name": "ERIN CHEN",
+        "mail": "Erin_Chen@wiwynn.com",
+        "department": "BED200",
+        "chinese_name": "陳怡蓉",
+        "id": 537,
+        "employee_no": "10303604"
+    }
+  400:
+    description: 'Something wrong'
