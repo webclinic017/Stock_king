@@ -3,7 +3,8 @@ from pandas import read_excel
 from email.mime.text import MIMEText
 from concurrent.futures import ThreadPoolExecutor
 from smtplib import SMTP
-from KD_check import stock_m
+from KD_check import StockModel
+stock_model = StockModel()
 #製作 Stock_ID
 st_data = read_excel('/root/server/Stoc/stock_id.xlsx',dtype=str)
 s_id=[str(i) for i in list(st_data.num)] #全部的股票代號
@@ -28,7 +29,7 @@ out_of_market=[]
 #平行處理
 with ThreadPoolExecutor() as executor:
     for i in range(part):
-        t+=[executor.submit(stock_m, s_id, st_d, div_list[i], div_list[i+1])]
+        t+=[executor.submit(stock_model.stock_m, s_id, st_d, div_list[i], div_list[i+1])]
     for i in range(part):
         
         for index, j in enumerate(t[i].result()[0]):
