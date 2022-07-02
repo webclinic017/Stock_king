@@ -4,8 +4,9 @@ from talib import abstract
 from datetime import datetime, timedelta, date
 import pandas as pd 
 from pandas import read_excel
+from config import cooperation_list
 #製作 Stock_ID
-st_data = read_excel('D:\\Learn\\Stock_king_server\\server\\Stoc\\stock_id.xlsx',dtype=str)
+st_data = read_excel(cooperation_list, dtype=str)
 s_id=[str(i) for i in list(st_data.num)] #全部的股票代號
 s_name=list(st_data.name)
 st_d={}
@@ -29,9 +30,12 @@ class StockModel():
         
 
     def select_logic(self, stock_dr):
-        buy=[[],[],[],[]]
-        sell=[[],[],[],[]]
-        out_of_market = []
+        levels = ['highest', 'high', 'low', 'lowest']
+        buy={}
+        sell={}
+        for level in levels:
+            buy[level] = []
+            sell[level] = []
 
         if stock_dr.iloc[-1].open < 3000 and stock_dr.iloc[-1].volume>5000000:  #取價格小於 300,且量大於5000張
                 # #accuracy
@@ -53,46 +57,44 @@ class StockModel():
                 if cross.slowd.iloc[j] > cross.slowk.iloc[j] and cross.slowd.iloc[j+1] < cross.slowk.iloc[j+1]:
                     #print(' +  : ',cross.index[j])
                     if cross.slowk.iloc[j] < 20 :
-                        buy[0] += [i,st_d[i],stock_dr.iloc[-1].open,cross.index[j],' + ']
+                        buy['highest'] += [i,st_d[i],stock_dr.iloc[-1].open,cross.index[j],' + ']
                     elif cross.slowk.iloc[j] < 50 :
-                        buy[1] += [i,st_d[i],stock_dr.iloc[-1].open,cross.index[j],' + ']
+                        buy['high'] += [i,st_d[i],stock_dr.iloc[-1].open,cross.index[j],' + ']
                     elif cross.slowk.iloc[j] < 80 :
-                        buy[2] += [i,st_d[i],stock_dr.iloc[-1].open,cross.index[j],' + ']
+                        buy['low'] += [i,st_d[i],stock_dr.iloc[-1].open,cross.index[j],' + ']
                     else :
-                        buy[3] += [i,st_d[i],stock_dr.iloc[-1].open,cross.index[j],' + ']
+                        buy['lowest'] += [i,st_d[i],stock_dr.iloc[-1].open,cross.index[j],' + ']
                     
                 elif cross.slowd.iloc[j] < cross.slowk.iloc[j] and cross.slowd.iloc[j+1] > cross.slowk.iloc[j+1] :
                     if cross.slowd.iloc[j] > 80 :
-                        sell[0] += [i,st_d[i],stock_dr.iloc[-1].open,cross.index[j],' - ']
+                        sell['highest'] += [i,st_d[i],stock_dr.iloc[-1].open,cross.index[j],' - ']
                     elif cross.slowd.iloc[j] > 50 :
-                        sell[1] += [i,st_d[i],stock_dr.iloc[-1].open,cross.index[j],' - ']
+                        sell['high'] += [i,st_d[i],stock_dr.iloc[-1].open,cross.index[j],' - ']
                     elif cross.slowd.iloc[j] > 20 :
-                        sell[2] += [i,st_d[i],stock_dr.iloc[-1].open,cross.index[j],' - ']
+                        sell['low'] += [i,st_d[i],stock_dr.iloc[-1].open,cross.index[j],' - ']
                     else:
-                        sell[3] += [i,st_d[i],stock_dr.iloc[-1].open,cross.index[j],' - ']
+                        sell['lowest'] += [i,st_d[i],stock_dr.iloc[-1].open,cross.index[j],' - ']
         return buy, sell
 
-    def stock_m(self, s_id, st_d, beg_id, end_id):
+    def stock_m(self, s_id, beg_id, end_id):
         out_of_market = []
         
         start = datetime.now() - timedelta(days=360)
         end = date.today()
         pd.core.common.is_list_like = pd.api.types.is_list_like
         
-        
         for i in s_id[beg_id:end_id]:
             #設定爬蟲時間
             stock_dr = self.get_stock_data(start, end)
             if not stock_dr:
                 out_of_market+=[i]
-                
-
-
             buy, sell = self.select_logic(stock_dr)
-                        
-                            
-        return(buy, sell, out_of_market)
-
+        res = {
+            'buy': buy, 
+            'sell': sell,
+            'out_of_market': out_of_market
+            }      
+        return res
 if __name__ == '__main__':
     stock_model = StockModel()
     print(stock_model.get_stock_data('2330'))

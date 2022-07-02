@@ -16,6 +16,9 @@ datebase_port = 5432
 # cooperation list
 cooperation_list = '/root/server/controller/stock_id.xlsx'
 
+# parallel
+partition = 150 #建多少 thread 一起跑
+
 # mail
 mail_token = 'mquwmfftoldbbyap'
 from_addr='hsustock12345@gmail.com'
