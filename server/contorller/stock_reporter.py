@@ -4,9 +4,13 @@ from email.mime.text import MIMEText
 from concurrent.futures import ThreadPoolExecutor
 from smtplib import SMTP
 from KD_check import StockModel
+from mail import Mail
+from config import cooperation_list
 stock_model = StockModel()
+mail = Mail()
+
 #製作 Stock_ID
-st_data = read_excel('/root/server/Stoc/stock_id.xlsx',dtype=str)
+st_data = read_excel(cooperation_list,dtype=str)
 s_id=[str(i) for i in list(st_data.num)] #全部的股票代號
 s_name=list(st_data.name)
 st_d={}
@@ -59,84 +63,4 @@ print('\n')
 print('sell : ',sell_id)
 print('#################################################################################')
 ##############################################################
-#寄信
-
-smtp = SMTP('smtp.gmail.com', 587)
-smtp.ehlo()
-smtp.starttls()
-smtp.login('hsustock12345@gmail.com','mquwmfftoldbbyap')
-
-#寄/收件人
-from_addr='hsustock12345@gmail.com'
-to_addr=['hsusean1219@gmail.com',
-         'stevenlinlyc860415@gmail.com','spencer8005@yahoo.com.tw', 'ian84311@gmail.com', 'tim47964136tim@gmail.com',
-         'kevinyu05062006@gmail.com','davidlv7621@yahoo.com.tw','anderson831208@gmail.com',  
-         'LOVEYSTIN@gmail.com', 'kennyliao07@hotmail.com.tw',
-         'Jeremy.Hsu@sti.com.tw','emailirene2006@gmail.com']
-# to_addr=['hsusean1219@gmail.com']
-
-#推薦名單
-recommend_buy = buy_id
-recommend_sell = sell_id
-
-#編輯內文
-msg=""
-msg+="Buy\n\n"
-if sum([len(i) for i in recommend_buy])==0:
-    msg+="None!!\n\n"
-else:
-    for index, i in enumerate(recommend_buy):
-        if index == 0:
-            msg += '強力推薦:\n'
-        elif index ==1:
-            msg += '高度推薦:\n'
-        elif index ==2:
-            msg += '中度推薦:\n'
-        elif index ==3:
-            msg += '低度推薦:\n'
-        if i== []:
-            msg += "None!!\n\n"
-        else:
-            for j in i:
-                if j == i[-1]:
-                    msg+= j[0]+' '+j[1]+" Price "+ str(round(j[2],2))+" !\n\n"
-                else:
-                    msg+= j[0]+' '+j[1]+" Price "+ str(round(j[2],2))+",\n"
-msg+="Sell\n\n"
-if sum([len(i) for i in recommend_sell])==0:
-    msg+="None!!\n\n"
-else:
-    for index, i in enumerate(recommend_sell):
-        if index == 0:
-            msg += '強力推薦:\n'
-        elif index ==1:
-            msg += '高度推薦:\n'
-        elif index ==2:
-            msg += '中度推薦:\n'
-        elif index ==3:
-            msg += '低度推薦:\n'
-        if i== []:
-            msg += "None!!\n\n"
-        else:
-            for j in i:
-                if j == i[-1]:
-                    msg+= j[0]+' '+j[1]+" Price "+ str(round(j[2],2))+" !\n\n"
-                else:
-                    msg+= j[0]+' '+j[1]+" Price "+ str(round(j[2],2))+",\n"
-
-msg += '\n 投資一定有風險，申購前請詳閱公開說明書'
-#輸入內容
-text = MIMEText(msg, 'plain', 'utf-8')
-text['From'] = u'台灣巴菲哲'
-text['Subject'] =u'自動報明牌系統'
-
-#寄信        
-for k in to_addr:
-    status=smtp.sendmail(from_addr, k, text.as_string())#加密文件，避免私密信息被截取 發現信的內容不能有":"            
-
-#確認
-if status=={}:
-    print(datetime.now().strftime('%Y-%m-%d %H:%M:%S')+"  郵件傳送成功!")
-else:
-    print(datetime.now().strftime('%Y-%m-%d %H:%M:%S')+"  郵件傳送失敗!")
-smtp.quit()
+mail.run(buy_id, sell_id)
